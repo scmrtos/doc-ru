@@ -17,7 +17,7 @@
 
 !!! tip "**СОВЕТ**"
 
-    Историю появления **scmRTOS** и некоторые "философские" замечения на тему операционных систем реального времени можно найти в [документе scmRTOS.ru.pdf](https://github.com/scmrtos/scmrtos-doc/blob/master/pdf/scmRTOS.ru.pdf)
+    История появления **scmRTOS** и некоторые "философские" замечения на тему операционных систем реального времени приведены в [документе scmRTOS.ru.pdf](https://github.com/scmrtos/scmrtos-doc/blob/master/pdf/scmRTOS.ru.pdf)
 
 
 ### Поддерживаемые платформы
