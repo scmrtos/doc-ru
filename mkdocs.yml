@@ -29,6 +29,7 @@ nav:
     - Приложения:
         - Отладка                        : src/debug.md
         - Профилировка процессов         : src/profiler.md
+        - 'Пример: очередь заданий'      : src/example-job-queue.md
         - Термины и сокращения           : src/glossary.md
 
 extra_javascript:
