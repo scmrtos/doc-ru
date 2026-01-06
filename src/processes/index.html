@@ -98,6 +98,8 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../profiler/">Профилировка процессов</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../example-job-queue/">Пример: очередь заданий</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../glossary/">Термины и сокращения</a>
                   </li>
               </ul>
@@ -130,7 +132,7 @@
 <h2 id="_2">Общие сведения и внутреннее представление<a class="headerlink" href="#_2" title="Permanent link">🔗</a></h2>
 <h3 id="_3">Процесс как таковой<a class="headerlink" href="#_3" title="Permanent link">🔗</a></h3>
 <p>Процесс в <strong>scmRTOS</strong>&nbsp;– это объект типа, производного от класса <code>OS::TBaseProcess</code>. Причина, по которой для каждого процесса требуется отдельный тип (ведь почему бы просто не сделать все процессы объектами типа <code>OS::TBaseProcess</code>), состоит в том, что процессы, несмотря на всю похожесть, всё-таки отличаются&nbsp;– у них разные размеры стеков и разные значения приоритетов (которые, не следует забывать, задаются статически).</p>
-<p>Для определения типов процессов используется стандартное средство С+⁠+ – шаблоны (templates), что позволило получить "компактные" типы процессов, в которых содержатся все необходимые внутренности, включая и непосредственно стек процесса, который у всех процессов имеет разный размер и задаётся индивидуально.</p>
+<p>Для определения типов процессов используется стандартное средство С++&nbsp;– шаблоны (templates), что позволяет получить "компактные" типы процессов, в которых содержатся все необходимые внутренности, включая и непосредственно стек процесса, который у всех процессов имеет разный размер и задаётся индивидуально.</p>
 <figure>
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="mo">01</span><span class="w">    </span><span class="k">class</span><span class="w"> </span><span class="nc">TBaseProcess</span><span class="w">                                                           </span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="mo">02</span><span class="w">    </span><span class="p">{</span><span class="w">                                                                            </span>
