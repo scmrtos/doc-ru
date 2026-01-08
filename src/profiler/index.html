@@ -121,7 +121,7 @@
 <p>Цель данного примера&nbsp;– показать, как можно создать полезное средство, расширяющее функциональные возможности операционной системы не изменяя исходный код ОС. Дополнительные требования: </p>
 <ul>
 <li>разрабатываемый класс не должен накладывать ограничений на способы использования профилировщика&nbsp;– т.е. период сбора информации и место использования должны полностью определяться пользователем;</li>
-<li>реализация должна быть как можно менее ресурсоёмкой, как по размеру исполняемого кода, так и по быстродействию, т.е., в частности, использование вычислений с плавающей точкой должно быть исключено.</li>
+<li>реализация должна быть как можно менее ресурсоёмкой, как по размеру исполняемого кода, так и по быстродействию, т.е., в частности, использование вычислений с плавающей точкой на платформах без аппаратной поддержки таковой должно быть исключено.</li>
 </ul>
 <h2 id="_3">Реализация<a class="headerlink" href="#_3" title="Permanent link">🔗</a></h2>
 <p>Профилировщик сам по себе выполняет две основные функции&nbsp;– это сбор информации об относительном времени активной работы процессов и обработка этой информации с целью получения результатов.</p>
@@ -205,7 +205,7 @@
 N_{max} = \frac{2^{32} - 1}{10000} = \frac{4294967295}{10000} = 429496 \tag{1}
 \]</div>
 <p>Полученная величина является достаточно небольшой, поэтому, чтобы расширить данное оганичение, вычисления производятся с 64-разрядной точностью&nbsp;– значение счётчика приводится к 64-разрядному беззнаковому целому (26).</p>
-<p>Также пользователь должен позаботиться о том, чтобы за период профилировки не происходило переполнения счётчиков, т.е. накопленная любым счётчиком величина не превышала значения  <span class="arithmatex">\(2^{32}-1\)</span>. Удовлетворение этого требования достигается путём согласования периода профилировки и величины разрешения возвращаемого функцией <code>time_interval()</code> значения.</p>
+<p>Также пользователь должен позаботиться о том, чтобы за период профилировки не происходило переполнения счётчиков, т.е. накопленная любым счётчиком величина не превышала значения  <span class="arithmatex">\(2^{32}-1\)</span>. Удовлетворение этого требования достигается путём согласования периода профилировки и максимальной величины возвращаемого функцией <code>time_interval()</code> значения.</p>
 <p>Подключение профилировщика к проекту осуществляется путём включения заголовочного файла profiler.h в конфигурационный файл проекта scmRTOS_extensions.h.</p>
 <h3 id="_4">Использование<a class="headerlink" href="#_4" title="Permanent link">🔗</a></h3>
 <h4 id="_5">Статистический метод<a class="headerlink" href="#_5" title="Permanent link">🔗</a></h4>
@@ -220,7 +220,7 @@ N_{max} = \frac{2^{32} - 1}{10000} = \frac{4294967295}{10000} = 429496 \tag{1}
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="mo">03</span><span class="w">    </span><span class="p">{</span><span class="w">                                            </span>
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="mo">04</span><span class="w">        </span><span class="k">static</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">cycles</span><span class="p">;</span><span class="w">                  </span>
 </span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="mo">05</span><span class="w">                                                 </span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="mo">06</span><span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">cyc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rpa</span><span class="p">(</span><span class="n">GTMR_CNT0_REG</span><span class="p">);</span><span class="w">       </span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="mo">06</span><span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">cyc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rpa</span><span class="p">(</span><span class="n">GTMR_CNT0_REG</span><span class="p">);</span><span class="w"> </span><span class="c1">// rpa stands for &quot;read phisical memory&quot;</span>
 </span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="mo">07</span><span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cyc</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">cycles</span><span class="p">;</span><span class="w">             </span>
 </span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="mi">08</span><span class="w">        </span><span class="n">cycles</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="n">cyc</span><span class="p">;</span><span class="w">                      </span>
 </span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="mi">09</span><span class="w">                                                 </span>
@@ -293,7 +293,7 @@ N = \frac{2}{5 \cdot 10^{-9}} = 400 000 000 \tag{2}
 <p>В данном случае этот коэффициент равен 10000, что и задаёт значение разрешения в 1/10000, которое соответствует 0.01%.&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
 </li>
 <li id="fn:3">
-<p>Некоторые процессоры, например, Blackfin или Cortex-A, имеют в своём составе специальный аппаратный счётчик тактов процессора, который инкрементируется на каждом такте, что позволяет очень просто организовать процесс измерения временных интервалов.&#160;<a class="footnote-backref" href="#fnref:3" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+<p>Некоторые процессоры, например Blackfin, имеют в своём составе специальный аппаратный счётчик тактов процессора, который инкрементируется на каждом такте, что позволяет очень просто организовать процесс измерения временных интервалов.&#160;<a class="footnote-backref" href="#fnref:3" title="Jump back to footnote 3 in the text">&#8617;</a></p>
 </li>
 <li id="fn:4">
 <p>Например, WatchDog Timer МК <strong>MSP430</strong>, который вполне подходит для использования его в качестве системного таймера, не годится для целей измерения временных интервалов, т.к. не позволяет программе получить доступ к своему счётному регистру.&#160;<a class="footnote-backref" href="#fnref:4" title="Jump back to footnote 4 in the text">&#8617;</a></p>
