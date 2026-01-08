@@ -2,83 +2,13 @@
 
 ----
 
-## Общие сведения и внутреннее представление
+## Общие сведения и<br> внутреннее представление
 
 ### Процесс как таковой
 
 Процесс в **scmRTOS**&nbsp;– это объект типа, производного от класса `OS::TBaseProcess`. Причина, по которой для каждого процесса требуется отдельный тип (ведь почему бы просто не сделать все процессы объектами типа `OS::TBaseProcess`), состоит в том, что процессы, несмотря на всю похожесть, всё-таки отличаются&nbsp;– у них разные размеры стеков и разные значения приоритетов (которые, не следует забывать, задаются статически).
 
 Для определения типов процессов используется стандартное средство С++&nbsp;– шаблоны (templates), что позволяет получить "компактные" типы процессов, в которых содержатся все необходимые внутренности, включая и непосредственно стек процесса, который у всех процессов имеет разный размер и задаётся индивидуально.
-
-```cpp
-01    class TBaseProcess                                                           
-02    {                                                                            
-03       friend class TKernel;                                                    
-04       friend class TISRW;                                                      
-05       friend class TISRW_SS;                                                   
-06       friend class TKernelAgent;                                               
-07                                                                                
-08       friend void run();                                                       
-09                                                                                
-10    public:                                                                      
-11        TBaseProcess( stack_item_t * StackPoolEnd                                
-12                    , TPriority pr                                               
-13                    , void (*exec)()                                             
-14                #if scmRTOS_DEBUG_ENABLE == 1                                    
-15                    , stack_item_t * StackPool                                   
-16                #endif                                                           
-17                    );                                                           
-18    protected:                                                                   
-19        INLINE void set_unready() { Kernel.set_process_unready(this->Priority); }
-20        void init_stack_frame( stack_item_t * StackPoolEnd                       
-21                             , void (*exec)()                                    
-22                         #if scmRTOS_DEBUG_ENABLE == 1
-23                             , stack_item_t * StackPool                          
-24                         #endif                                      
-25                             );                                                  
-26    public:                                                                      
-27        static void sleep(timeout_t timeout = 0);                                
-28               void wake_up();                                                   
-29               void force_wake_up();                                             
-30        INLINE void start() { force_wake_up(); }                                 
-31        INLINE bool is_sleeping() const;                                         
-32        INLINE bool is_suspended() const;                                        
-33                                 
-34    #if scmRTOS_DEBUG_ENABLE == 1                                                
-35        INLINE TService * waiting_for() { return WaitingFor; }                   
-36    public:                                                                      
-37               size_t     stack_slack() const;                                   
-38    #endif // scmRTOS_DEBUG_ENABLE                                               
-39                                                                                 
-40    #if scmRTOS_PROCESS_RESTART_ENABLE == 1                                      
-41    protected:                                                                   
-42               void reset_controls();                                            
-43    #endif                                                                       
-44        //-----------------------------------------------------                  
-45        //                                                                       
-46        //    Data members                                                       
-47        //                                                                       
-48    protected:                                                                   
-49        stack_item_t *     StackPointer;                                         
-50        volatile timeout_t Timeout;                                              
-51        const TPriority    Priority;                                             
-52    #if scmRTOS_DEBUG_ENABLE == 1                                                
-53        TService           * volatile WaitingFor;                                
-54        const stack_item_t * const StackPool;                                    
-55    #endif // scmRTOS_DEBUG_ENABLE                                               
-56                                                                                 
-57    #if scmRTOS_PROCESS_RESTART_ENABLE == 1                                      
-58        volatile TProcessMap * WaitingProcessMap;                                
-59    #endif      
-60    
-61    #if scmRTOS_SUSPENDED_PROCESS_ENABLE != 0
-62        static TProcessMap SuspendedProcessMap;
-63    #endif                                                                 
-64    };                                                                           
-```
-/// Caption
-Листинг 1. TBaseProcess
-///
 
 ### TBaseProcess
 
@@ -90,7 +20,109 @@
 
 [^2]: На самом деле существует два варианта этого класса – обычный (он и показан) и с отдельным стеком для адресов возвратов, код которого тут не приводится для краткости, т.к. никаких принципиальных для понимания и изложения отличий в нём нет.
 
-Несмотря на кажущуюся обширность определения этого класса, на самом деле он очень небольшой и простой. Его представление содержит всего три члена-данных&nbsp;– это указатель стека&nbsp;(49), счётчик тиков таймаута&nbsp;(50) и значение приоритета&nbsp;(51). Остальные члены-данные являются вспомогательными и присутствуют только при разрешении дополнительной функциональности&nbsp;– возможность прерывать работу процесса в любой момент с последующим перезапуском, а также средства отладки[^3].
+```cpp
+01    class TBaseProcess                                                             
+02    {                                                                              
+03        friend class TKernel;                                                      
+04        friend class TISRW;                                                        
+05        friend class TISRW_SS;                                                     
+06        friend class TKernelAgent;                                                 
+07                                                                                   
+08        friend void run();                                                         
+09                                                                                   
+10    public:                                                                        
+11        TBaseProcess( stack_item_t * StackPoolEnd                                  
+12                    , TPriority pr                                                 
+13                    , void (*exec)()                                               
+14                #if scmRTOS_DEBUG_ENABLE == 1                                      
+15                    , stack_item_t * aStackPool                                    
+16                    , const char   * name = 0                                      
+17                #endif                                                             
+18                    );                                                             
+19    protected:                                                                     
+20        INLINE void set_unready() { Kernel.set_process_unready(this->Priority); }  
+21        void init_stack_frame( stack_item_t * StackPoolEnd                         
+22                             , void (*exec)()                                      
+23        #if scmRTOS_DEBUG_ENABLE == 1                                              
+24                             , stack_item_t * StackPool                            
+25        #endif                                                                     
+26                             );                                                    
+27    public:                                                                        
+28                                                                                   
+29    #else  // SEPARATE_RETURN_STACK                                                
+30                                                                                   
+31        TBaseProcess( stack_item_t* StackPoolEnd                                   
+32                    , stack_item_t* RStack                                         
+33                    , TPriority pr                                                 
+34                    , void (*exec)()                                               
+35                #if scmRTOS_DEBUG_ENABLE == 1                                      
+36                    , stack_item_t * aStackPool                                    
+37                    , stack_item_t * aRStackPool                                   
+38                    , const char   * name = 0                                      
+39                #endif                                                             
+40                    );                                                             
+41    protected:                                                                     
+42        void init_stack_frame( stack_item_t * Stack                                
+43                             , stack_item_t * RStack                               
+44                             , void (*exec)()                                      
+45        #if scmRTOS_DEBUG_ENABLE == 1                                              
+46                             , stack_item_t * StackPool                            
+47                             , stack_item_t * RStackPool                           
+48        #endif                                                                     
+49                             );                                                    
+50                                                                                   
+51        TPriority   priority() const { return Priority; }                          
+52                                                                                   
+53        static void sleep(timeout_t timeout = 0);                                  
+54               void wake_up();                                                     
+55               void force_wake_up();                                               
+56        INLINE void start() { force_wake_up(); }                                   
+57                                                                                   
+58        INLINE bool is_sleeping() const;                                           
+59        INLINE bool is_suspended() const;                                          
+60                                                                                   
+61    #if scmRTOS_DEBUG_ENABLE == 1                                                  
+62      INLINE TService * waiting_for() const { return WaitingFor; }                 
+63    public:                                                                        
+64               size_t       stack_size()  const { return StackSize; }              
+65               size_t       stack_slack() const;                                   
+66               const char * name()        const { return Name; }                   
+67    #endif // scmRTOS_DEBUG_ENABLE                                                 
+68                                                                                   
+69    #if scmRTOS_PROCESS_RESTART_ENABLE == 1                                        
+70    protected:                                                                     
+71               void reset_controls();                                              
+72    #endif                                                                         
+73                                                                                   
+74        //-----------------------------------------------------                    
+75        //                                                                         
+76        //    Data members                                                         
+77        //                                                                         
+78    protected:                                                                     
+79        stack_item_t *     StackPointer;                                           
+80        volatile timeout_t Timeout;                                                
+81        const TPriority    Priority;                                               
+82    #if scmRTOS_DEBUG_ENABLE == 1                                                  
+83        TService           * volatile WaitingFor;                                  
+84        const stack_item_t * const    StackPool;                                   
+85        const size_t                  StackSize; // as number of stack_item_t items
+86        const char                  * Name;                                        
+87    #endif // scmRTOS_DEBUG_ENABLE                                                 
+88                                                                                   
+89    #if scmRTOS_PROCESS_RESTART_ENABLE == 1                                        
+90        volatile TProcessMap * WaitingProcessMap;                                  
+91    #endif                                                                         
+92                                                                                   
+93    #if scmRTOS_SUSPENDED_PROCESS_ENABLE != 0                                      
+94        static TProcessMap SuspendedProcessMap;                                    
+95    #endif                                                                         
+96    };                                                                             
+```
+/// Caption
+Листинг 1. TBaseProcess
+///
+
+Несмотря на кажущуюся обширность определения этого класса, на самом деле он очень небольшой и простой. Его представление содержит всего три члена-данных&nbsp;– это указатель стека&nbsp;(79), счётчик тиков таймаута&nbsp;(80) и значение приоритета&nbsp;(81). Остальные члены-данные являются вспомогательными и присутствуют только при разрешении дополнительной функциональности&nbsp;– возможность прерывать работу процесса в любой момент с последующим перезапуском, а также средства отладки[^3].
 
 [^3]: Это же касается и остального кода – большая часть определения класса занята описанием этих вспомогательных возможностей.
 
@@ -102,6 +134,7 @@
   * `is_sleeping()`. Проверяет, находится ли процесс в состоянии "спячки", т.е. в состоянии ожидания с таймаутом события;
   * `is_suspended()`. Проверяет, находится ли процесс в неактивном состоянии.
 
+<a name="process-stack"></a>
 ### Стек
 
 Стек процесса&nbsp;– это некоторая непрерывная область оперативной памяти, используемая для хранения в ней данных процесса, а также сохранения контекста процесса и адресов возвратов из 
@@ -129,7 +162,7 @@
 
 Каждый процесс имеет также поле данных, содержащее приоритет процесса. Это поле является идентификатором процесса при манипуляции с процессами и их представлением, в частности, приоритет процесса&nbsp;– это индекс в таблице указателей на процессы, находящейся в составе ядра, куда записывается адрес каждого процесса при регистрации.
 
-Приоритеты являются уникальными –  не может быть двух процессов с одинаковым приоритетом. Внутреннее представление приоритета – переменная целочисленного типа. Для безопасности использования при задании приоритетов используется специальный перечислимый тип `TPriority`.
+Приоритеты являются уникальными&nbsp;–  не может быть двух процессов с одинаковым приоритетом. Внутреннее представление приоритета&nbsp;– переменная целочисленного типа. Для безопасности использования при задании приоритетов используется специальный перечислимый тип `TPriority`.
 
 <a name="process-sleep"></a>
 ### Функция sleep()
@@ -147,21 +180,21 @@
 Тип конкретного процесса описывается с помощью шаблона `OS::process`: см. "Листинг 2. Шаблон процесса".
 
 ```cpp
-01    template<TPriority pr, size_t stack_size>               
-02    class process : public TBaseProcess                     
-03    {                                                       
-04    public:                                                 
-05        INLINE_PROCESS_CTOR process();                      
-06                                                            
-07        OS_PROCESS static void exec();                      
-08                                                            
-09    #if scmRTOS_PROCESS_RESTART_ENABLE == 1                 
-10        INLINE void terminate();                            
-11    #endif                                                  
-12                                                            
-13    private:                                                
-14        stack_item_t Stack[stack_size/sizeof(stack_item_t)];
-15    };                                                      
+01    template<TPriority pr, size_t stk_size, TProcessStartState pss = pssRunning> 
+02    class process : public TBaseProcess                                          
+03    {                                                                            
+04    public:                                                                      
+05        INLINE_PROCESS_CTOR process( const char * name_str = 0 );                
+06                                                                                 
+07        OS_PROCESS static void exec();                                           
+08                                                                                 
+09    #if scmRTOS_PROCESS_RESTART_ENABLE == 1                                      
+10        INLINE void terminate();                                                 
+11    #endif                                                                       
+12                                                                                 
+13    private:                                                                     
+14        stack_item_t Stack[stk_size/sizeof(stack_item_t)];                       
+15    };                                                                           
 ```
 /// Caption
 Листинг 2. Шаблон процесса
@@ -178,11 +211,11 @@
 
 ```cpp
 
-typedef OS::process<OS::prn, 100> Slon;
+typedef OS::process<OS::prN, 100> Slon;
 
 Slon slon;
 ```
-где n – номер приоритета.
+где N – номер приоритета.
 
 ["Листинг 1. Исполняемая функция процесса из раздела Обзор операционной системы"](overview.md#process-exec) иллюстрирует пример типовой процессной функции.
 
