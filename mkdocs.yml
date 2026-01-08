@@ -20,6 +20,7 @@ nav:
     - Введение:
         - Вместо предисловия             : index.md 
         - Обзор операционной системы     : src/overview.md
+    
     - Компоненты:
         - Ядро                           : src/kernel.md
         - Процессы                       : src/processes.md
@@ -29,6 +30,7 @@ nav:
     - Приложения:
         - Отладка                        : src/debug.md
         - Профилировка процессов         : src/profiler.md
+        - 'Пример: очередь заданий'      : src/example-job-queue.md
         - Термины и сокращения           : src/glossary.md
 
 extra_javascript:
