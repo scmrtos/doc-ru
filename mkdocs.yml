@@ -1,5 +1,5 @@
 site_name: scmRTOS
-#site_url: ''
+site_url: https://scmrtos.github.io/
 #use_directory_urls: false
 
 theme:
