@@ -1,7 +1,7 @@
 
 # scmRTOS
 
-Аббревиатура **scmRTOS** расшифровывается как **Single-Chip Microcontroller Real Time Operating System**.
+Название **scmRTOS** расшифровывается как **Single-Chip Microcontroller Real Time Operating System**.
 
 Как можно понять из названия, **scmRTOS** ориентирована на однокристальные микроконтроллеры (МК), хотя ничего не мешает использовать её и с процессорами вроде Blackfin или Cortex-A.
 
