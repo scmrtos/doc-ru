@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://scmrtos.github.io/src/processes/" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
     <title>Процессы - scmRTOS</title>
     <link rel="stylesheet" href="../../css/theme.css" />
@@ -15,7 +15,7 @@
         // Current page data
         var mkdocs_page_name = "\u041f\u0440\u043e\u0446\u0435\u0441\u0441\u044b";
         var mkdocs_page_input_path = "src/processes.md";
-        var mkdocs_page_url = null;
+        var mkdocs_page_url = "/src/processes/";
       </script>
     
     <!--[if lt IE 9]>
@@ -422,7 +422,7 @@
 <li><code>OS::TBaseProcess::start()</code>.</li>
 </ul>
 <h4 id="_15">Остановка выполнения процесса<a class="headerlink" href="#_15" title="Permanent link">🔗</a></h4>
-<p>Функция <code>terminate()</code> предназначена для вызова извне останавливаемого процесса. Внутри неё производится приведение всех связанных с данным процессом ресурсов в исходное состояние и процесс переводится в состояние неготовых к выполнению. При этом, если процесс находился в ожидании какого-либо сервиса, тег процесса удаляется из карты ожидающих процессов этого сервиса.</p>
+<p>Функция <code>terminate()</code> предназначена для вызова извне останавливаемого процесса. Внутри неё производится приведение всех связанных с данным процессом ресурсов в исходное состояние и процесс переводится в состояние неготового к выполнению. При этом, если процесс находился в ожидании какого-либо сервиса, тег процесса удаляется из карты ожидающих процессов этого сервиса.</p>
 <p>Функция <code>terminate()</code> может получать в качестве аргумента указатель на функцию, которая будет использоваться в качестве исполняемой функции процесса при следующем запуске. Это даёт определённую гибкость при реализации функциональности программы &nbsp;– при каждом перезапуске можно указывать именно ту исполняемую функцию, которая необходима в текущем контексте программы.</p>
 <div class="admonition tip">
 <p class="admonition-title"><strong>СОВЕТ</strong></p>
